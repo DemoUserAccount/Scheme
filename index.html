@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin Wheel with Confetti</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            overflow: scroll;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*height: 100vh;*/
+    flex-direction: column;
+    background-color: #f7f7f7;
+}
+
+.container {
+    text-align: center;
+}
+
+.form-group {
+    margin: 10px 0;
+}
+
+.wheel-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+.spin-wheel {
+    
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    position: relative;
+    background-image: conic-gradient(#ff0000 0% 16.66%, #ffcc00 16.66% 33.33%, #00ff00 33.33% 50%, #00ccff 50% 66.66%, #0000ff 66.66% 83.33%, #ff00ff 83.33% 100%);
+    transform-origin:center;
+    transition: transform 6s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.sector {
+    position: absolute;
+    top: 80px;
+    left: 5px;
+    width: 50%;
+    height: 50%;
+    overflow: hidden;
+    transform-origin: 100%; /* Pivot point */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sector:nth-child(1) {
+    transform: rotate(0deg) translate(100%);
+}
+.sector:nth-child(2) {
+    transform: rotate(60deg) translate(100%);
+}
+.sector:nth-child(3) {
+    transform: rotate(120deg) translate(100%);
+}
+.sector:nth-child(4) {
+    transform: rotate(180deg) translate(100%);
+}
+.sector:nth-child(5) {
+    transform: rotate(240deg) translate(100%);
+}
+.sector:nth-child(6) {
+    transform: rotate(300deg) translate(100%);
+}
+
+.text {
+    font-size: 14px; /* Adjusted text size */
+    position: absolute;
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%) rotate(30deg); /* Center and rotate to align with sector */
+    text-align: center;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+
+
+button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* Popup Styles */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border: 2px solid #000;
+    padding: 20px;
+    z-index: 100;
+}
+
+.popup-content {
+    text-align: center;
+}
+
+.popup button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#confettiCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="color: goldenrod">Diwali Dhamaka Offer</h1>
+
+   
+    <div class="form-group">
+        <label>Customer's Name: </label>
+        <input type="text" id="customerName" placeholder="Enter Customer's Name">
+    </div>
+    <div class="form-group">
+        <label>Customer's Mobile: </label>
+        <input type="text" id="customerMobile" placeholder="Enter Mobile Number">
+    </div>
+    <div class="form-group">
+        <label>4 Digit Number: </label>
+        <input type="number" id="fourDigitNumber" placeholder="Enter 4 digit number" maxlength="4">
+    </div>
+    <div class="form-group">
+        <label>Invoice Number: </label>
+        <input type="text" id="invoiceNumber" placeholder="Enter Invoice Number">
+    </div>
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    
+    <h1 style="color: goldenrod; font-family: cursive">Diwali Dhamaka Offer</h1>
+    <div class="wheel-container">
+        <div class="spin-wheel" id="wheel">
+            <div class="sector">
+                <p>Ultra-SmartWatch</p>
+            </div>
+            <div class="sector">
+                <P>BT-Speaker</P>
+            </div>
+            <div class="sector">
+                <p>Earpods</p>
+            </div>
+            <div class="sector">
+                <p>Neckband</p>
+            </div>
+            <div class="sector">
+                <p>Iron</p>
+            </div>
+            <div class="sector">
+                <p>Mixer-Grinder</p>
+            </div>
+        </div>
+       
+    </div>
+
+    <button onclick="spinWheel()">Spin the Wheel!</button>
+</div>
+
+<div id="resultPopup" class="popup">
+    <div class="popup-content">
+        <span id="resultText"> </span>
+        <br>
+        <img src="#" alt="prdimg" id="resultImg" height="30%" width="30%">
+        <button onclick="closePopup()">Close</button>
+    </div>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+
+<script> 
+    // Options
+const options = ["UltraWatch", "BT Speaker", "BT Airpods", "BT Neckband", "Iron", "Mixer"];
+const displayedOptions = new Set(); // Track displayed options
+
+    //Name
+    
+
+function spinWheel() {
+    
+    const fourDigitNumber = document.getElementById("fourDigitNumber").value;
+
+    if (fourDigitNumber.length !== 4) {
+        alert("Please enter a valid 4-digit number.");
+        return;
+    }
+
+    // Get the last digit of the 4-digit number
+    const lastDigit = fourDigitNumber % 10;
+
+    if (lastDigit < 1 || lastDigit > 6) {
+        alert("The last digit of the number should be between 1 and 6.");
+        return;
+    }
+
+    const wheel = document.getElementById("wheel");
+
+    // Calculate how many degrees to rotate (each sector is 60 degrees)
+    const degrees = 60 * (lastDigit - 1) + 360 * 5; // Adding 360*5 for extra spins
+
+    // Apply CSS rotation to the wheel, 6s rotation time
+    wheel.style.transition = "transform 6s ease-out";
+    wheel.style.transform = `rotate(${degrees}deg)`;
+
+    // Show the result after spinning
+    setTimeout(() => {
+        showPopup(getOptionToDisplay(lastDigit)); // Show popup with the option
+        startConfetti(); // Start confetti effect
+    }, 6000); // Wait for the spin animation to finish
+}
+
+// Determine which option to display
+function getOptionToDisplay(lastDigit) {
+    if (lastDigit === 5 || lastDigit === 6) {
+        // If it's option 5 or 6, check if it's already displayed
+        if (!displayedOptions.has(options[lastDigit - 1])) {
+            displayedOptions.add(options[lastDigit - 1]); // Mark as displayed
+            return options[lastDigit - 1];
+        } else {
+            // If already displayed, return a random option from 1-4
+            return options[Math.floor(Math.random() * 4)]; // Random from Option 1 to Option 4
+        }
+    } else {
+        return options[lastDigit - 1]; // Return the regular option
+    }
+}
+
+// Show the result in a popup
+function showPopup(result) {
+    document.getElementById("resultText").textContent = `Congratulations ! You won:  ${result}`;
+    document.getElementById("resultImg").src=`/storage/9016-4EF8/${result}.jpg`;
+    document.getElementById("resultPopup").style.display = "block";
+}
+
+// Close the popup
+function closePopup() {
+    document.getElementById("resultPopup").style.display = "none";
+    stopConfetti();
+}
+
+// Confetti effect
+let confettiParticles = [];
+const confettiCanvas = document.getElementById('confettiCanvas');
+const confettiContext = confettiCanvas.getContext('2d');
+
+// Confetti particle class
+class ConfettiParticle {
+    constructor() {
+        this.x = Math.random() * confettiCanvas.width;
+        this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+        this.size = Math.random() * 10 + 5;
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        this.speed = Math.random() * 3 + 2;
+        this.angle = Math.random() * Math.PI * 2;
+        this.spin = Math.random() * 0.1 - 0.05;
+    }
+
+    update() {
+        this.y += this.speed;
+        this.angle += this.spin;
+        if (this.y > confettiCanvas.height) {
+            this.y = -this.size;
+        }
+    }
+
+    draw() {
+        confettiContext.save();
+        confettiContext.translate(this.x, this.y);
+        confettiContext.rotate(this.angle);
+        confettiContext.fillStyle = this.color;
+        confettiContext.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        confettiContext.restore();
+    }
+}
+
+// Start confetti
+function startConfetti() {
+    confettiParticles = Array.from({ length: 200 }, () => new ConfettiParticle());
+    requestAnimationFrame(updateConfetti);
+}
+
+function updateConfetti() {
+    confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiParticles.forEach(particle => {
+        particle.update();
+        particle.draw();
+    });
+    requestAnimationFrame(updateConfetti);
+}
+
+// Stop confetti
+function stopConfetti() {
+    confettiParticles = [];
+}
+
+</script>
+
+</body>
+</html>
